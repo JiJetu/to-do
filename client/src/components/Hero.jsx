@@ -6,13 +6,13 @@ const Hero = () => {
       <div className="hero">
         <div className="hero-content text-center">
           <div className="max-w-md">
-            <h1 className="text-5xl font-bold">
+            <h1 className="text-5xl font-bold dark:text-white">
               Welcome to{" "}
-              <span class="bg-gradient-to-r from-red-600 via-blue-500 to-purple-600 text-transparent bg-clip-text bg-300% animate-gradient">
+              <span className="bg-gradient-to-r from-red-600 via-blue-500 to-purple-600 text-transparent bg-clip-text bg-300% animate-gradient">
                 ToDo
               </span>
             </h1>
-            <p className="py-6">
+            <p className="py-6 dark:text-white">
               Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
               excepturi exercitationem quasi.
             </p>

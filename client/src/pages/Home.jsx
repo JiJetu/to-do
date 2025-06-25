@@ -3,7 +3,7 @@ import wave from "../assets/waves.svg";
 
 const Home = () => {
   return (
-    <div className="relative flex flex-col justify-center items-center min-h-[calc(100vh-65px)]">
+    <div className="relative flex flex-col justify-center items-center min-h-[calc(100vh-65px)] dark:bg-black">
       <Hero />
       <img className="absolute bottom-0 w-full" src={wave} alt="wave image" />
     </div>

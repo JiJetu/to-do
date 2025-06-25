@@ -1,7 +1,7 @@
 const Footer = () => {
   return (
     <>
-      <footer className="footer md:grid-cols-4 bg-base-200 text-base-content p-10">
+      <footer className="footer md:grid-cols-4 bg-base-100 dark:bg-black text-base-content dark:text-white p-10">
         <nav>
           <h6 className="footer-title">Services</h6>
           <a className="link link-hover">Branding</a>
@@ -39,7 +39,7 @@ const Footer = () => {
           </fieldset>
         </form>
       </footer>
-      <footer className="footer footer-center bg-base-200 text-base-content p-4 border-t">
+      <footer className="footer footer-center bg-base-100 p-4 border-t dark:border-purple-600 dark:bg-black text-base-content dark:text-white">
         <aside>
           <p>
             Copyright &copy; {new Date().getFullYear()} - All right reserved by
