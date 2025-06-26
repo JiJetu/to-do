@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 3000;
 
@@ -29,6 +29,123 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+    // db collection
+    const tasksCollection = client.db("toDo").collection("tasks");
+    const taskBidsCollection = client.db("toDo").collection("bids");
+
+    // get all task data from db
+    app.get("/tasks", async (req, res) => {
+      try {
+        const result = await tasksCollection.find().toArray();
+
+        res.send(result);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+        res.status(500).send({ message: "failed to fetch all task data" });
+      }
+    });
+
+    // get a single task data from db using task id
+    app.get("/task/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const query = { _id: new ObjectId(id) };
+
+        const result = await tasksCollection.findOne(query);
+
+        res.send(result);
+      } catch (error) {
+        console.error("Error fetching task:", error);
+        res.status(500).send({ message: "failed to fetch task data" });
+      }
+    });
+
+    // ToDo: Have to do it with token validation
+    // get user specific task data from db
+    app.get("/user-tasks/:email", async (req, res) => {
+      try {
+        const { email } = req.params;
+        const query = { ownerEmail: email };
+
+        const result = await tasksCollection.find(query).toArray();
+
+        res.send(result);
+      } catch (error) {
+        console.log("Error fetching user task data", error);
+        res
+          .status(500)
+          .send({ message: "failed to fetch user specific tasks" });
+      }
+    });
+
+    // save a task data in db
+    app.post("/task", async (req, res) => {
+      try {
+        const taskData = req.body;
+
+        const result = await tasksCollection.insertOne(taskData);
+
+        res.send(result);
+      } catch (error) {
+        console.error("Error posting task:", error);
+        res.status(500).send({ message: "failed to post task data" });
+      }
+    });
+
+    // update task data in db
+    app.put("/task/:id", async (req, res) => {
+      try {
+        const updatedTaskData = req.body;
+        const { id } = req.params;
+        const query = { _id: new ObjectId(id) };
+        const options = { upsert: true };
+
+        const updatedDoc = {
+          $set: { ...updatedTaskData },
+        };
+
+        const result = await tasksCollection.updateOne(
+          query,
+          updatedDoc,
+          options
+        );
+
+        res.send(result);
+      } catch (error) {
+        console.error("Error posting task:", error);
+        res.status(500).send({ message: "failed to post task data" });
+      }
+    });
+
+    // delete task data in db
+    app.delete("/task/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const query = { _id: new ObjectId(id) };
+
+        const result = await tasksCollection.deleteOne(query);
+
+        res.send(result);
+      } catch (error) {
+        console.error("Error deleting task:", error);
+        res.status(500).send({ message: "failed to delete task data" });
+      }
+    });
+
+    // save a bid data in db
+    app.post("/bid", async (req, res) => {
+      try {
+        const bidData = req.body;
+
+        const result = await taskBidsCollection.insertOne(bidData);
+
+        res.send(result);
+      } catch (error) {
+        console.log("Error posting bid", error);
+        res.status(500).send({ message: "failed to post bid in db" });
+      }
+    });
+
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
