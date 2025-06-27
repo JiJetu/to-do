@@ -23,10 +23,10 @@ const Register = () => {
 
     try {
       const res = await createUser(email, password);
-      console.log(res);
+
       toast.success("Registration Successful");
       await updateUserProfile(name, photo);
-      setUser({ ...user, displayName: name, photoURL: photo });
+      setUser({ ...res?.user, displayName: name, photoURL: photo });
       await logoutUser();
       navigate("/login");
     } catch (error) {

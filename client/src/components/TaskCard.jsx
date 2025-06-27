@@ -7,7 +7,7 @@ const TaskCard = ({ task }) => {
   return (
     <Link
       to={`/task/${_id}`}
-      className="w-full max-w-sm px-4 py-3 bg-white rounded-md shadow-md hover:scale-[1.05] transition-all"
+      className="w-full max-w-sm px-4 py-3 bg-white rounded-md shadow-md hover:scale-[1.05] transition-all flex flex-col"
     >
       <div className="flex items-center justify-between">
         <span className="text-xs font-light text-gray-800 ">
@@ -18,14 +18,19 @@ const TaskCard = ({ task }) => {
         </span>
       </div>
 
-      <div>
+      <div className="flex flex-col flex-grow">
         <h1 className="mt-2 text-lg font-semibold text-gray-800 ">
           {taskTitle}
         </h1>
-
-        <p title={description} className="mt-2 text-sm text-gray-600 ">
-          {description.substring(0, 70)}...
+        <p
+          title={description}
+          className="mt-2 text-sm text-gray-600 grow break-words"
+        >
+          {description.length > 70
+            ? `${description.substring(0, 70)}...`
+            : description}
         </p>
+
         <div className="flex justify-between items-center">
           <p className="mt-2 text-sm font-bold text-gray-600 ">
             Reward: ${reward}

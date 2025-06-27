@@ -1,4 +1,4 @@
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
@@ -6,11 +6,9 @@ import toast from "react-hot-toast";
 import axios from "axios";
 
 const TaskDetails = () => {
+  const navigate = useNavigate();
   const task = useLoaderData();
   const { user } = useAuth();
-
-  const [startDate, setStartDate] = useState(new Date());
-
   const {
     _id,
     taskTitle,
@@ -22,6 +20,8 @@ const TaskDetails = () => {
     bidCount,
     location,
   } = task || {};
+
+  const [startDate, setStartDate] = useState(new Date(dateline));
 
   const handleBidSubmit = async (e) => {
     e.preventDefault();
@@ -44,17 +44,16 @@ const TaskDetails = () => {
       comment,
       price,
       deadline: startDate,
-      email: user?.email,
+      bidRequestEmail: user?.email,
       buyer_email: postedBy?.email,
       buyer: postedBy,
     };
-
-    console.log(bidData);
 
     try {
       await axios.post(`${import.meta.env.VITE_API_URL}/bid`, bidData);
       toast.success("Bid placed successfully!");
       form.reset();
+      navigate("/my-bids");
     } catch (error) {
       console.error(error);
       toast.error("Failed to place bid");
@@ -77,7 +76,9 @@ const TaskDetails = () => {
         <h1 className="text-2xl font-semibold text-gray-800 dark:text-white mb-2">
           {taskTitle}
         </h1>
-        <p className="text-gray-600 dark:text-gray-300 mb-4">{description}</p>
+        <p className="text-gray-600 dark:text-gray-300 mb-4 break-all">
+          {description}
+        </p>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4 mb-3">

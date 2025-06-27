@@ -10,7 +10,10 @@ const MyPostedTask = () => {
 
   const getTasks = async () => {
     const { data } = await axios(
-      `${import.meta.env.VITE_API_URL}/user-tasks/${user?.email}`
+      `${import.meta.env.VITE_API_URL}/user-tasks/${user?.email}`,
+      {
+        withCredentials: true,
+      }
     );
 
     setTasks(data);
@@ -77,7 +80,7 @@ const MyPostedTask = () => {
                       Description
                     </th>
                     <th className="px-4 py-3.5 text-sm font-normal text-left text-gray-500">
-                      Edit
+                      Action
                     </th>
                   </tr>
                 </thead>

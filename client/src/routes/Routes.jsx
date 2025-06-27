@@ -12,6 +12,7 @@ import TaskDetails from "../pages/TaskDetails";
 import PrivateRoute from "./PrivateRoute";
 import MyBids from "../pages/MyBids";
 import UpdateTask from "../pages/UpdateTask";
+import BidRequest from "../pages/BidRequest";
 
 const router = createBrowserRouter([
   {
@@ -76,6 +77,14 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <MyBids />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "bid-requests",
+        element: (
+          <PrivateRoute>
+            <BidRequest />
           </PrivateRoute>
         ),
       },

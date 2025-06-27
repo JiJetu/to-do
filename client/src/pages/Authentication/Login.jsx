@@ -3,14 +3,20 @@ import loginImage from "../../assets/images/login.svg";
 import useAuth from "../../hooks/useAuth";
 import toast from "react-hot-toast";
 import userGoogleLogin from "../../hooks/userGoogleLogin";
+import { useEffect } from "react";
+import axios from "axios";
 
 const Login = () => {
   const handleGoogleLogin = userGoogleLogin();
-  const { loinUser } = useAuth();
+  const { user, loading, loinUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = location.state?.from?.pathname || "/";
+
+  useEffect(() => {
+    if (user) navigate("/");
+  }, [user, navigate]);
 
   // with email and password login
   const handleLogin = async (e) => {
@@ -21,13 +27,26 @@ const Login = () => {
     const password = form.password.value;
 
     try {
-      await loinUser(email, password);
+      const result = await loinUser(email, password);
+
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/jwt`,
+        {
+          email: result?.user?.email,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+
       toast.success("Login Successful");
       navigate(from, { replace: true });
     } catch (error) {
       toast.error(error?.message);
     }
   };
+
+  if (user || loading) return;
 
   return (
     <div className="flex justify-center items-center min-h-screen">

@@ -1,6 +1,7 @@
 import toast from "react-hot-toast";
 import useAuth from "./useAuth";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const userGoogleLogin = () => {
   const { loginWithGoogle } = useAuth();
@@ -12,7 +13,18 @@ const userGoogleLogin = () => {
   // Google login
   const handleGoogleLogin = async () => {
     try {
-      await loginWithGoogle();
+      const result = await loginWithGoogle();
+
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/jwt`,
+        {
+          email: result?.user?.email,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+
       toast.success("Login Successful");
       navigate(from, { replace: true });
     } catch (error) {

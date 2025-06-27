@@ -3,13 +3,22 @@ import { Link, NavLink } from "react-router-dom";
 import useTheme, { themItem } from "../hooks/useTheme";
 import useAuth from "../hooks/useAuth";
 import ProfileDropDown from "./ProfileDropDown";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 const Navbar = () => {
   const { handleToggleTheme, theme } = useTheme();
   const { user, logoutUser } = useAuth();
 
   const handleLogout = async () => {
-    await logoutUser();
+    try {
+      await logoutUser();
+      await axios(`${import.meta.env.VITE_API_URL}/logout`, {
+        withCredentials: true,
+      });
+    } catch (error) {
+      toast.error("something went wrong", error);
+    }
   };
 
   const navItems = (

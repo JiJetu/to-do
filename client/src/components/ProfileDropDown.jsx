@@ -14,6 +14,9 @@ const ProfileDropDown = ({ handleLogout, user }) => {
       <li>
         <Link to={"/my-tasks"}>My Tasks</Link>
       </li>
+      <li>
+        <Link to={"/bid-requests"}>Bid Requests</Link>
+      </li>
       <li className="mt-2">
         <button
           onClick={handleLogout}
