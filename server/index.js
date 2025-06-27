@@ -6,6 +6,12 @@ const port = process.env.PORT || 3000;
 
 const app = express();
 
+const bidStatus = {
+  Pending: "Pending",
+  Processing: "Processing",
+  Completed: "Completed",
+};
+
 const corsOptions = {
   origin: ["http://localhost:5173", "http://localhost:5174"],
   credentials: true,
@@ -65,7 +71,7 @@ async function run() {
     app.get("/user-tasks/:email", async (req, res) => {
       try {
         const { email } = req.params;
-        const query = { ownerEmail: email };
+        const query = { "postedBy.email": email };
 
         const result = await tasksCollection.find(query).toArray();
 
@@ -137,12 +143,44 @@ async function run() {
       try {
         const bidData = req.body;
 
+        bidData.createdAt = new Date();
+        bidData.status = bidStatus.Pending;
+
+        const { taskId } = bidData;
+        const query = {
+          _id: new ObjectId(taskId),
+        };
+
+        const updateResult = await tasksCollection.updateOne(query, {
+          $inc: { bidCount: 1 },
+        });
+
+        if (updateResult.modifiedCount === 0) {
+          return res
+            .status(404)
+            .send({ message: "Task not found to update bid count" });
+        }
+
         const result = await taskBidsCollection.insertOne(bidData);
 
         res.send(result);
       } catch (error) {
         console.log("Error posting bid", error);
         res.status(500).send({ message: "failed to post bid in db" });
+      }
+    });
+
+    app.get("/bid/:email", async (req, res) => {
+      try {
+        const { email } = req.params;
+        const query = { "postedBy.email": email };
+
+        const result = await taskBidsCollection.find(query).toArray();
+
+        res.send(result);
+      } catch (error) {
+        console.log("Error fetching bid", error);
+        res.status(500).send({ message: "failed to fetch bid in db" });
       }
     });
 
