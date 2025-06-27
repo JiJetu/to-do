@@ -2,6 +2,7 @@ import { BiMoon, BiSun } from "react-icons/bi";
 import { Link, NavLink } from "react-router-dom";
 import useTheme, { themItem } from "../hooks/useTheme";
 import useAuth from "../hooks/useAuth";
+import ProfileDropDown from "./ProfileDropDown";
 
 const Navbar = () => {
   const { handleToggleTheme, theme } = useTheme();
@@ -28,9 +29,9 @@ const Navbar = () => {
           className={({ isActive }) =>
             isActive ? "border-b border-purple-600" : ""
           }
-          to={"/task"}
+          to={"/tasks"}
         >
-          Task
+          Tasks
         </NavLink>
       </li>
     </>
@@ -93,40 +94,7 @@ const Navbar = () => {
             )}
 
             {user && (
-              <div className="dropdown dropdown-end">
-                <div
-                  tabIndex={0}
-                  role="button"
-                  className="btn btn-ghost btn-circle avatar"
-                >
-                  <div title={user?.displayName} className="w-10 rounded-full">
-                    <img
-                      referrerPolicy="no-referrer"
-                      alt={user?.displayName}
-                      src={user?.photoURL}
-                    />
-                  </div>
-                </div>
-                <ul
-                  tabIndex={0}
-                  className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-                >
-                  <li>
-                    <a className="justify-between">Profile</a>
-                  </li>
-                  <li>
-                    <a>Settings</a>
-                  </li>
-                  <li className="mt-2">
-                    <button
-                      onClick={handleLogout}
-                      className="bg-gray-200 block text-center"
-                    >
-                      Logout
-                    </button>
-                  </li>
-                </ul>
-              </div>
+              <ProfileDropDown handleLogout={handleLogout} user={user} />
             )}
           </div>
         </div>
