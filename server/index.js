@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 3000;
@@ -8,7 +10,8 @@ const app = express();
 
 const bidStatus = {
   Pending: "Pending",
-  Processing: "Processing",
+  In_Process: "In process",
+  Rejected: "Rejected",
   Completed: "Completed",
 };
 
@@ -21,6 +24,7 @@ const corsOptions = {
 // middleware
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(cookieParser());
 
 const uri = process.env.DB_URL;
 
@@ -38,6 +42,33 @@ async function run() {
     // db collection
     const tasksCollection = client.db("toDo").collection("tasks");
     const taskBidsCollection = client.db("toDo").collection("bids");
+
+    // creating jwt
+    app.post("/jwt", (req, res) => {
+      const email = req.body;
+      const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "365d",
+      });
+
+      res
+        .cookie("token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        })
+        .send({ success: true });
+    });
+    // remove jwt
+    app.get("/logout", (req, res) => {
+      res
+        .clearCookie("token", {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+          maxAge: 0,
+        })
+        .send({ success: true });
+    });
 
     // get all task data from db
     app.get("/tasks", async (req, res) => {
@@ -118,8 +149,8 @@ async function run() {
 
         res.send(result);
       } catch (error) {
-        console.error("Error posting task:", error);
-        res.status(500).send({ message: "failed to post task data" });
+        console.error("Error updating task:", error);
+        res.status(500).send({ message: "failed to update task data" });
       }
     });
 
@@ -135,6 +166,36 @@ async function run() {
       } catch (error) {
         console.error("Error deleting task:", error);
         res.status(500).send({ message: "failed to delete task data" });
+      }
+    });
+
+    // getting all user bids from db
+    app.get("/my-bids/:email", async (req, res) => {
+      try {
+        const { email } = req.params;
+        const query = { bidRequestEmail: email };
+
+        const result = await taskBidsCollection.find(query).toArray();
+
+        res.send(result);
+      } catch (error) {
+        console.log("Error fetching bid", error);
+        res.status(500).send({ message: "failed to fetch bid in db" });
+      }
+    });
+
+    // get all bid request
+    app.get("/bid-request/:email", async (req, res) => {
+      try {
+        const { email } = req.params;
+        const query = { buyer_email: email };
+
+        const result = await taskBidsCollection.find(query).toArray();
+
+        res.send(result);
+      } catch (error) {
+        console.log("Error fetching bid", error);
+        res.status(500).send({ message: "failed to fetch bid in db" });
       }
     });
 
@@ -170,17 +231,23 @@ async function run() {
       }
     });
 
-    app.get("/bid/:email", async (req, res) => {
+    // updating bid status
+    app.patch("/bid/:id", async (req, res) => {
       try {
-        const { email } = req.params;
-        const query = { "postedBy.email": email };
+        const { id } = req.params;
+        const status = req.body;
+        const query = { _id: new ObjectId(id) };
 
-        const result = await taskBidsCollection.find(query).toArray();
+        const updateStatus = {
+          $set: status,
+        };
+
+        const result = await taskBidsCollection.updateOne(query, updateStatus);
 
         res.send(result);
       } catch (error) {
-        console.log("Error fetching bid", error);
-        res.status(500).send({ message: "failed to fetch bid in db" });
+        console.log("Error updating bid", error);
+        res.status(500).send({ message: "failed to update bid in db" });
       }
     });
 
